@@ -61,6 +61,7 @@
   <classpathentry path="/home/frberger/Programs/play/framework/../repository/cache/org.mongodb/casbah-gridfs_2.9.1/jars/casbah-gridfs_2.9.1-2.4.1.jar" kind="lib"></classpathentry>
   <classpathentry path="/home/frberger/Programs/play/framework/../repository/cache/net.liftweb/lift-json_2.9.1/jars/lift-json_2.9.1-2.4.jar" kind="lib"></classpathentry>
   <classpathentry path="/home/frberger/Programs/play/framework/../repository/cache/com.thoughtworks.paranamer/paranamer/jars/paranamer-2.3.jar" kind="lib"></classpathentry>
+  <classpathentry path="/home/frberger/Programs/play/framework/../repository/cache/se.radley/play-plugins-salat_2.9.1/jars/play-plugins-salat_2.9.1-1.1.jar" kind="lib"></classpathentry>
   <classpathentry path="/home/frberger/Programs/play/framework/../repository/local/play/play-test_2.9.1/2.0.4/jars/play-test_2.9.1.jar" kind="lib"></classpathentry>
   <classpathentry path="/home/frberger/Programs/play/framework/../repository/local/org.specs2/specs2_2.9.1/1.9/jars/specs2_2.9.1.jar" kind="lib"></classpathentry>
   <classpathentry path="/home/frberger/Programs/play/framework/../repository/local/com.novocode/junit-interface/0.8/jars/junit-interface.jar" kind="lib"></classpathentry>

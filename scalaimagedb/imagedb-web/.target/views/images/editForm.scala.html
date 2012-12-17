@@ -1,0 +1,29 @@
+@(id: ObjectId, imageForm: Form[Image])
+
+@import helper._
+
+@implicitFieldConstructor = @{ FieldConstructor(twitterBootstrapInput.f) }
+
+@main {
+    
+    <h1>Edit an image</h1>
+    
+    @form(routes.Images.update(id)) {
+        
+        <fieldset>        
+        	<input type="hidden" name="id" value="" />
+            @inputText(imageForm("name"), '_label -> "Image name")        
+        </fieldset>
+        
+        <div class="actions">
+            <input type="submit" value="Save this image" class="btn primary"> or 
+            <a href="@routes.Images.list()" class="btn">Cancel</a> 
+        </div>
+        
+    }
+    
+    @form(routes.Images.delete(id), 'class -> "topRight") {
+        <input type="submit" value="Delete this image" class="btn danger">
+    }
+    
+}

@@ -2,10 +2,22 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
-# Home page
-GET     /                           controllers.Application.index
-GET     /metadata              		controllers.Metadatas.form
-POST    /metadata              		controllers.Metadatas.submit
+# Default path will just redirect to the images list
+GET     /						controllers.Application.index
+
+# Images list (look at the default values for pagination parameters)
+GET     /images					controllers.Images.list(p:Int ?= 0, s:Int ?= 2, f ?= "")
+
+# Add an image
+GET     /images/new             controllers.Images.create
+POST    /images                 controllers.Images.save
+
+# Edit an existing image
+GET     /images/:id          	controllers.Images.edit(id:ObjectId)
+POST    /images/:id          	controllers.Images.update(id:ObjectId)
+
+# Delete an image
+POST    /images/:id/delete   	controllers.Images.delete(id:ObjectId)
 
 # Map static resources from the /public folder to the /assets URL path
-GET     /assets/*file               controllers.Assets.at(path="/public", file)
+GET     /assets/*file			controllers.Assets.at(path="/public", file)

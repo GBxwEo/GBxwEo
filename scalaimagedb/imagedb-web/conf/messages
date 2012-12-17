@@ -1,0 +1,3 @@
+# Messages
+
+images.list.title={0,choice,0#No image|1#One image|1<{0,number,integer} images} found

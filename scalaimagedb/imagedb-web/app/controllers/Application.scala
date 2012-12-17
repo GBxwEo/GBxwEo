@@ -2,14 +2,12 @@ package controllers
 
 import com.mongodb.casbah.Imports.MongoDBObject
 
-import models.MetadataDAO
-import play.api.mvc.Action
-import play.api.mvc.Controller
+import play.api._
+import play.api.data.Forms._
+import play.api.mvc._
 
 object Application extends Controller {
 
-  def index = Action {
-    Ok(views.html.index(MetadataDAO.find(MongoDBObject.empty).toSeq))
-  }
+  def index = Action { Images.Home }
 
 }
