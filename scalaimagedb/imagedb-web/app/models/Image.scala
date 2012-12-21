@@ -21,7 +21,7 @@ object Image extends ModelCompanion[Image, ObjectId] {
 
   val columns = List("dummy", "_id", "name", "introduced", "discontinued", "company_id")
 
-  def list(page: Int = 0, pageSize: Int = 10, orderBy: Int = 1, filter: String = ""): Page[Image] = {
+  def list(page: Int = 0, pageSize: Int = 6, orderBy: Int = 1, filter: String = ""): Page[Image] = {
 
     val where = if (filter == "") MongoDBObject.empty else MongoDBObject("name" -> (""".*""" + filter + """.*""").r)
     val ascDesc = if (orderBy > 0) 1 else -1
