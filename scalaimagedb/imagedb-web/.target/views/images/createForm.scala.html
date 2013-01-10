@@ -8,18 +8,31 @@
     
     <h1>Add image</h1>
     
-    @form(routes.Images.save()) {
+    @form(action = routes.Images.save, 'enctype -> "multipart/form-data") {
               
-        <fieldset>
-                
+        <fieldset>                
             @inputText(imageForm("name"), '_label -> "Image name")
-           
+                        
+            <div class="fileupload fileupload-new" data-provides="fileupload">
+	  			<div class="fileupload-new thumbnail" style="width: 300px; height: 200px;"><img data-src="holder.js/300x200/text:No&nbsp;Image" alt=""></div>
+	  			<div class="fileupload-preview fileupload-exists thumbnail" style="max-width: 300px; max-height: 200px; line-height: 20px;"></div>
+	  			<div>
+	    			<span class="btn btn-file">
+		    			<span class="fileupload-new">Select image file</span>
+		    			<span class="fileupload-exists">Change</span>
+		    			<input type="file" name="binary" />
+	    			</span>
+	    			<a href="#" class="btn fileupload-exists" data-dismiss="fileupload">Remove</a>
+	  			</div>            
+			</div>
+		          
         </fieldset>
         
         <div class="actions">
             <input type="submit" value="Create this image" class="btn primary"> or 
             <a href="@routes.Images.list()" class="btn">Cancel</a> 
         </div>
+                      
         
     }
     

@@ -2,7 +2,6 @@ package controllers
 
 import com.mongodb.casbah.Imports.MongoDBObject
 import com.mongodb.casbah.Imports.ObjectId
-
 import models._
 import play.api._
 import play.api.data._
@@ -11,8 +10,9 @@ import play.api.data.format.Formatter
 import play.api.data.validation.Constraints._
 import play.api.mvc._
 import views._
-
 import se.radley.plugin.salat.Formats._
+import play.api.mvc.MultipartFormData$
+import java.io.File
 
 object Images extends Controller {
 
@@ -82,14 +82,17 @@ object Images extends Controller {
   /**
    * Handle the 'new image form' submission.
    */
-  def save = Action { implicit request =>
+  def save = Action(parse.multipartFormData) { implicit request =>
     imageForm().bindFromRequest.fold(
       formWithErrors => BadRequest(html.images.createForm(formWithErrors)),
       image => {
+        val binary = request.body.file("binary").get 
+        binary.ref.moveTo(new File("/tmp/picture"))
+    
         Image.insert(image)
         Home.flashing("success" -> "Image %s has been created".format(image.name))
       })
-  }
+  } 
 
   /**
    * Handle image deletion.
