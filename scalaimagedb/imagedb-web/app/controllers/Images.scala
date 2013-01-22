@@ -1,18 +1,24 @@
 package controllers
 
+import java.io.PipedInputStream
+import java.io.PipedOutputStream
 import com.mongodb.casbah.Imports.MongoDBObject
 import com.mongodb.casbah.Imports.ObjectId
-import models._
-import play.api._
-import play.api.data._
-import play.api.data.Forms._
-import play.api.data.format.Formatter
-import play.api.data.validation.Constraints._
-import play.api.mvc._
-import views._
-import se.radley.plugin.salat.Formats._
-import play.api.mvc.MultipartFormData$
-import java.io.File
+import error.ErrorCode
+import error.SystemException
+import models.Image
+import play.api.data.Form
+import play.api.data.Forms.ignored
+import play.api.data.Forms.mapping
+import play.api.data.Forms.nonEmptyText
+import play.api.libs.iteratee.Iteratee
+import play.api.mvc.Action
+import play.api.mvc.BodyParser
+import play.api.mvc.Controller
+import play.api.mvc.MultipartFormData
+import play.api.mvc.Result
+import views.html
+import scala.actors.threadpool.Executors
 
 object Images extends Controller {
 
@@ -79,20 +85,48 @@ object Images extends Controller {
     Ok(html.images.createForm(imageForm()))
   }
 
+  def myPartHandler: parse.Multipart.PartHandler[MultipartFormData.FilePart[String]] = {
+    parse.Multipart.handleFilePart {
+      case parse.Multipart.FileInfo(partName, filename, contentType) =>
+
+        //Still dirty: the path of the file is in the partName...
+        val path = "/tmp/toto";
+
+        //Set up the PipedOutputStream here, give the input stream to a worker thread
+        val pos = new PipedOutputStream();
+        val pis = new PipedInputStream(pos);
+        val worker = new UploadFileWorker(path, pis);
+
+        //Do the upload job
+        worker.start()
+
+        //Read content to the POS
+        Iteratee.fold[Array[Byte], PipedOutputStream](pos) { (os, data) =>
+          os.write(data)
+          os
+        }.mapDone { os =>
+          try { os.close() } catch { case ex => SystemException.wrap(ErrorCode.TECHNICAL_ERROR, ex) }
+          "Yahoooooo"
+        }
+    }
+  }
+
+  val myBodyParser = BodyParser { request =>
+    parse.multipartFormData(myPartHandler).apply(request)
+  }
+
   /**
    * Handle the 'new image form' submission.
    */
-  def save = Action(parse.multipartFormData) { implicit request =>
+  def save = Action(myBodyParser) { implicit request =>
+
     imageForm().bindFromRequest.fold(
       formWithErrors => BadRequest(html.images.createForm(formWithErrors)),
       image => {
-        val binary = request.body.file("binary").get 
-        binary.ref.moveTo(new File("/tmp/picture"))
-    
-        Image.insert(image)
+        // Make use of request.body.file("file").get.ref
         Home.flashing("success" -> "Image %s has been created".format(image.name))
       })
-  } 
+  }
 
   /**
    * Handle image deletion.
