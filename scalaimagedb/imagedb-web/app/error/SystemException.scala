@@ -29,7 +29,7 @@ object SystemException {
 
   def wrap(errorCode: ErrorCode, exception: Throwable): SystemException = {
 
-    Logger.error(exception.getMessage())
+    Logger.error("AHHHH! - " + exception.getMessage())
     
     if (exception.isInstanceOf[SystemException]) {
       exception.asInstanceOf[SystemException];

@@ -19,6 +19,7 @@ import play.api.mvc.MultipartFormData
 import play.api.mvc.Result
 import views.html
 import scala.actors.threadpool.Executors
+import models.ImageBinary
 
 object Images extends Controller {
 
@@ -122,8 +123,7 @@ object Images extends Controller {
 
     imageForm().bindFromRequest.fold(
       formWithErrors => BadRequest(html.images.createForm(formWithErrors)),
-      image => {
-        // Make use of request.body.file("file").get.ref
+      image => {        
         Home.flashing("success" -> "Image %s has been created".format(image.name))
       })
   }

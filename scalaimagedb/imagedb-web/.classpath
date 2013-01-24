@@ -75,11 +75,16 @@
   <classpathentry path="/home/frberger/Programs/play/framework/../repository/cache/org.apache.tika/tika-core/bundles/tika-core-1.0.jar" kind="lib"></classpathentry>
   <classpathentry path="/home/frberger/Programs/play/framework/../repository/cache/org.apache.lucene/lucene-core/jars/lucene-core-3.0.3.jar" kind="lib"></classpathentry>
   <classpathentry path="/home/frberger/Programs/play/framework/../repository/cache/org.apache.derby/derby/jars/derby-10.5.3.0_1.jar" kind="lib"></classpathentry>
+  <classpathentry path="/home/frberger/Programs/play/framework/../repository/cache/org.apache.jackrabbit/jackrabbit-spi2dav/jars/jackrabbit-spi2dav-2.4.3.jar" kind="lib"></classpathentry>
+  <classpathentry path="/home/frberger/Programs/play/framework/../repository/cache/org.apache.jackrabbit/jackrabbit-webdav/bundles/jackrabbit-webdav-2.4.3.jar" kind="lib"></classpathentry>
+  <classpathentry path="/home/frberger/Programs/play/framework/../repository/cache/commons-httpclient/commons-httpclient/jars/commons-httpclient-3.0.jar" kind="lib"></classpathentry>
+  <classpathentry path="/home/frberger/Programs/play/framework/../repository/cache/junit/junit/jars/junit-4.10.jar" kind="lib"></classpathentry>
+  <classpathentry path="/home/frberger/Programs/play/framework/../repository/cache/org.hamcrest/hamcrest-core/jars/hamcrest-core-1.1.jar" kind="lib"></classpathentry>
+  <classpathentry path="/home/frberger/Programs/play/framework/../repository/cache/org.apache.jackrabbit/jackrabbit-jcr2spi/bundles/jackrabbit-jcr2spi-2.4.3.jar" kind="lib"></classpathentry>
   <classpathentry path="/home/frberger/Programs/play/framework/../repository/cache/javax.jcr/jcr/jars/jcr-2.0.jar" kind="lib"></classpathentry>
   <classpathentry path="/home/frberger/Programs/play/framework/../repository/local/play/play-test_2.9.1/2.0.4/jars/play-test_2.9.1.jar" kind="lib"></classpathentry>
   <classpathentry path="/home/frberger/Programs/play/framework/../repository/local/org.specs2/specs2_2.9.1/1.9/jars/specs2_2.9.1.jar" kind="lib"></classpathentry>
   <classpathentry path="/home/frberger/Programs/play/framework/../repository/local/com.novocode/junit-interface/0.8/jars/junit-interface.jar" kind="lib"></classpathentry>
-  <classpathentry path="/home/frberger/Programs/play/framework/../repository/local/junit/junit/4.8.2/jars/junit.jar" kind="lib"></classpathentry>
   <classpathentry path="/home/frberger/Programs/play/framework/../repository/local/org.scala-tools.testing/test-interface/0.5/jars/test-interface.jar" kind="lib"></classpathentry>
   <classpathentry path="/home/frberger/Programs/play/framework/../repository/local/org.fluentlenium/fluentlenium-festassert/0.5.6/jars/fluentlenium-festassert.jar" kind="lib"></classpathentry>
   <classpathentry path="/home/frberger/Programs/play/framework/../repository/local/org.fluentlenium/fluentlenium-core/0.5.6/jars/fluentlenium-core.jar" kind="lib"></classpathentry>
