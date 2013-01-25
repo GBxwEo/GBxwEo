@@ -1,4 +1,4 @@
-package error
+package exception
 
 import scala.collection.mutable.Map
 import scala.collection.mutable.HashMap

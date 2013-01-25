@@ -2,23 +2,21 @@ package models
 
 import java.io.InputStream
 import java.util.Calendar
+
 import scala.compat.Platform
+
 import org.apache.jackrabbit.JcrConstants
-import org.apache.jackrabbit.api.JackrabbitRepository
-import org.apache.jackrabbit.core.TransientRepository
+
 import javax.jcr.Node
-import javax.jcr.SimpleCredentials
-import javax.jcr.Session
-import java.io.File
-import org.apache.jackrabbit.core.RepositoryImpl
-import org.apache.jackrabbit.core.config.RepositoryConfig
-import persistence.JCRRepositoryManager
+import persistence.jcr.JCRRepositoryManager
 
 object ImageBinary {
 
+  val repositoryManager: JCRRepositoryManager = new JCRRepositoryManager("http://localhost:8080/server")
+
   def getImageFolderNode: Node = {
 
-    val session = JCRRepositoryManager.getSession
+    val session = repositoryManager.getSession
     try {
       val nodeName = "images"
       val rootNode = session.getRootNode
@@ -36,7 +34,7 @@ object ImageBinary {
 
   def addImage(input: InputStream, imageId: String): Node = {
 
-    val session = JCRRepositoryManager.getSession
+    val session = repositoryManager.getSession
     try {
       val folderNode = getImageFolderNode
 
@@ -53,8 +51,8 @@ object ImageBinary {
       contentNode.setProperty(JcrConstants.JCR_MIMETYPE, "image/jpeg")
 
       //Set the content data
-//      val valueFactory = session.getValueFactory();
-//       contentNode.setProperty(JcrConstants.JCR_DATA, valueFactory.createBinary(input))
+      //      val valueFactory = session.getValueFactory();
+      //       contentNode.setProperty(JcrConstants.JCR_DATA, valueFactory.createBinary(input))
 
       session.save()
       fileNode

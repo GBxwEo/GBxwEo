@@ -1,4 +1,4 @@
-package persistence
+package persistence.jcr
 
 import org.apache.jackrabbit.jcr2spi.RepositoryImpl
 import org.apache.jackrabbit.jcr2spi.config.CacheBehaviour
@@ -9,25 +9,30 @@ import org.apache.jackrabbit.spi.commons.name.NameFactoryImpl
 import org.apache.jackrabbit.spi.commons.name.PathFactoryImpl
 import org.apache.jackrabbit.spi.commons.value.QValueFactoryImpl
 import org.apache.jackrabbit.spi2dav.RepositoryServiceImpl
-
 import javax.jcr.Repository
 import javax.jcr.Session
 
-object JCRRepositoryManager {
+trait JCRRepositoryComponent {
 
-  val url = "http://localhost:8080/server"
+  val serverUri: String
 
-  lazy val repository = getRepository(url)
+  val repositoryManager = new JCRRepositoryManager(serverUri)
+}
 
-  private def getRepository(serverUrl: String): Repository = {
+class JCRRepositoryManager(serverUri: String) {
 
-    val idFactory = IdFactoryImpl.getInstance()
-    val nameFactory = NameFactoryImpl.getInstance()
-    val pathFactory = PathFactoryImpl.getInstance()
-    val qvalueFactory = QValueFactoryImpl.getInstance()
-    val repoService = new RepositoryServiceImpl(url, idFactory, nameFactory, pathFactory, qvalueFactory)
-    val config = getConfig(repoService);
+  def getSession: Session = {
+    repository.login()
+  }
 
+  private val repository = getRepository
+
+  private def getRepository: Repository = {
+
+    val repositoryService = new RepositoryServiceImpl(serverUri,
+      IdFactoryImpl.getInstance(), NameFactoryImpl.getInstance(),
+      PathFactoryImpl.getInstance(), QValueFactoryImpl.getInstance())
+    val config = getConfig(repositoryService);
     RepositoryImpl.create(config);
   }
 
@@ -43,7 +48,7 @@ object JCRRepositoryManager {
       }
 
       def getItemCacheSize: Int = {
-        return 200;
+        return 5000;
       }
 
       def getCacheBehaviour: CacheBehaviour = {
@@ -51,13 +56,9 @@ object JCRRepositoryManager {
       }
 
       def getPollTimeout(): Int = {
-        200
+        1000
       }
     }
   }
-
-  def getSession: Session = {
-    repository.login()
-  }
-
 }
+

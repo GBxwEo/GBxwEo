@@ -4,8 +4,8 @@ import java.io.PipedInputStream
 import java.io.PipedOutputStream
 import com.mongodb.casbah.Imports.MongoDBObject
 import com.mongodb.casbah.Imports.ObjectId
-import error.ErrorCode
-import error.SystemException
+import exception.ErrorCode
+import exception.SystemException
 import models.Image
 import play.api.data.Form
 import play.api.data.Forms.ignored
