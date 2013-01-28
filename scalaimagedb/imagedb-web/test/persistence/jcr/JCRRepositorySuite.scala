@@ -8,10 +8,13 @@ import utils.Settings
 
 class JCRRepositorySuite extends mutable.Specification {
 
-  val config = ConfigFactory.load("test")
+  val config = ConfigFactory.load("env-test")
 
   trait Fixture {
-    val repo = new JCRRepositoryManager(config.getString(Settings.JCR_REPOSITORY_URI))
+    val repo = new JCRRepositoryManager(
+      config.getString(Settings.JCR_REPOSITORY_URI),
+      config.getString(Settings.JCR_REPOSITORY_USERNAME),
+      config.getString(Settings.JCR_REPOSITORY_PASSWORD))
   }
 
   new Fixture {

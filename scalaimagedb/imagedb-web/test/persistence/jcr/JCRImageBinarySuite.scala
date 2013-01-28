@@ -12,21 +12,24 @@ import utils.Settings
 
 class JCRImageBinarySuite extends mutable.Specification {
 
-  val testConfig = ConfigFactory.load("test")
+  val config = ConfigFactory.load("env-test")
 
   trait Fixture {
     val imageBinaryComponent: ImageBinaryComponent = new JCRImageBinaryComponent with JCRRepositoryComponent {
-      val serverUri = testConfig.getString(Settings.JCR_REPOSITORY_URI)
+      def serverUri = config.getString(Settings.JCR_REPOSITORY_URI)
+      def username = config.getString(Settings.JCR_REPOSITORY_USERNAME)
+      def password = config.getString(Settings.JCR_REPOSITORY_PASSWORD)
     }
+    val imageBinaryManager = imageBinaryComponent.imageBinaryManager
   }
 
   new Fixture {
-    "ImageBinaryComponent.ImageBinaryManager.saveImageBinary" should {
+    "JCRImageBinaryManager.saveImageBinary" should {
       "not produce exception" in {
         {
           val imageId = UUID.randomUUID().toString()
           val input = new ByteArrayInputStream(imageId.getBytes())
-          imageBinaryComponent.imageBinaryManager.saveImageBinary(input, imageId)
+          imageBinaryManager.saveImageBinary(input, imageId)
         } must not(throwA[Throwable])
       }
     }

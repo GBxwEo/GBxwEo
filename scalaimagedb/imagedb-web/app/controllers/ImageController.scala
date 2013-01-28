@@ -16,25 +16,16 @@ import play.api.mvc.Action
 import play.api.mvc.BodyParser
 import play.api.mvc.Controller
 import play.api.mvc.MultipartFormData
-import play.api.mvc.Result
 import views.html
-import scala.actors.threadpool.Executors
-import models.ImageBinary
+import java.util.UUID
+import persistence.ImageBinaryComponent
 
-object Images extends Controller {
+object ImageController extends Controller with ControllerServices {
 
   /**
    * This result directly redirect to the application home.
    */
-  val Home = Redirect(routes.Images.list(0, 2, ""))
-
-  /**
-   * Describe the image form (used in both edit and create screens).
-   */
-  def imageForm(id: ObjectId = new ObjectId) = Form(
-    mapping(
-      "id" -> ignored(id),
-      "name" -> nonEmptyText)(Image.apply)(Image.unapply))
+  val Home = Redirect(routes.ImageController.list(0, 2, ""))
 
   /**
    * Handle default path requests, redirect to images list
@@ -55,7 +46,8 @@ object Images extends Controller {
   }
 
   /**
-   * Display the 'edit form' of a existing Image.
+   * Dispobject Images extends Controller {
+   * lay the 'edit form' of a existing Image.
    *
    * @param id Id of the image to edit
    */
@@ -90,13 +82,11 @@ object Images extends Controller {
     parse.Multipart.handleFilePart {
       case parse.Multipart.FileInfo(partName, filename, contentType) =>
 
-        //Still dirty: the path of the file is in the partName...
-        val path = "/tmp/toto";
-
         //Set up the PipedOutputStream here, give the input stream to a worker thread
-        val pos = new PipedOutputStream();
-        val pis = new PipedInputStream(pos);
-        val worker = new UploadFileWorker(path, pis);
+        val pos = new PipedOutputStream()
+        val pis = new PipedInputStream(pos)
+        val imageId = UUID.randomUUID().toString()
+        val worker = new ImageBinaryUploader(imageBinaryComponent, pis, imageId)
 
         //Do the upload job
         worker.start()
@@ -107,7 +97,7 @@ object Images extends Controller {
           os
         }.mapDone { os =>
           try { os.close() } catch { case ex => SystemException.wrap(ErrorCode.TECHNICAL_ERROR, ex) }
-          "Yahoooooo"
+          imageId
         }
     }
   }
@@ -123,8 +113,17 @@ object Images extends Controller {
 
     imageForm().bindFromRequest.fold(
       formWithErrors => BadRequest(html.images.createForm(formWithErrors)),
-      image => {        
-        Home.flashing("success" -> "Image %s has been created".format(image.name))
+      image => {
+        request.body.file("ImageBinary").map { picture =>
+
+          // TODO Store this id in mongodb 
+          val imageId = picture.ref
+
+          Image.insert(image)
+          Home.flashing("success" -> "Image %s has been created".format(imageId))
+        }.getOrElse {
+          Home.flashing("error" -> "Image %s has not been created".format(image.name))
+        }
       })
   }
 
@@ -135,5 +134,13 @@ object Images extends Controller {
     Image.remove(MongoDBObject("_id" -> id))
     Home.flashing("success" -> "Image has been deleted")
   }
+
+  /**
+   * Describe the image form (used in both edit and create screens).
+   */
+  def imageForm(id: ObjectId = new ObjectId) = Form(
+    mapping(
+      "id" -> ignored(id),
+      "name" -> nonEmptyText)(Image.apply)(Image.unapply))
 
 }

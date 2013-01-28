@@ -2,18 +2,17 @@ package persistence.jcr
 
 import java.io.InputStream
 import java.util.Calendar
-
 import scala.compat.Platform
-
 import org.apache.jackrabbit.JcrConstants
-
 import javax.jcr.Node
+import javax.jcr.Session
 import persistence.ImageBinaryComponent
+import javax.jcr.ValueFactory
 
 trait JCRImageBinaryComponent extends ImageBinaryComponent {
   this: JCRRepositoryComponent =>
 
-  def imageBinaryManager = new JCRImageBinaryManager
+  def imageBinaryManager: ImageBinaryManager = new JCRImageBinaryManager
 
   class JCRImageBinaryManager extends ImageBinaryManager {
 
@@ -21,23 +20,16 @@ trait JCRImageBinaryComponent extends ImageBinaryComponent {
 
       val session = repositoryManager.getSession
       try {
-        val folderNode = getImageFolderNode
+        //Get the image folder node
+        val rootNode = session.getRootNode
+        val folderNode = getImageFolderNode(rootNode)
 
-        //Create the file node
-        val fileNode = folderNode.addNode(imageId, JcrConstants.NT_FILE)
+        //Create a file node
+        val fileNode = createFileNode(folderNode, imageId)
 
-        //Create the mandatory child node - jcr:content
-        val contentNode = fileNode.addNode(JcrConstants.JCR_CONTENT, JcrConstants.NT_RESOURCE)
-
-        //Set the last modified and mime type properties
-        val lastModified: Calendar = Calendar.getInstance()
-        lastModified.setTimeInMillis(Platform.currentTime)
-        contentNode.setProperty(JcrConstants.JCR_LASTMODIFIED, lastModified)
-        contentNode.setProperty(JcrConstants.JCR_MIMETYPE, "image/jpeg")
-
-        //Set the content data
+        //Create a content node
         val valueFactory = session.getValueFactory();
-        contentNode.setProperty(JcrConstants.JCR_DATA, valueFactory.createBinary(input))
+        createContentNode(fileNode, valueFactory, input)
 
         session.save()
 
@@ -46,25 +38,37 @@ trait JCRImageBinaryComponent extends ImageBinaryComponent {
       }
     }
 
-    private val imageFolderNode = getImageFolderNode
+    private def getImageFolderNode(rootNode: Node): Node = {
 
-    private def getImageFolderNode: Node = {
+      val nodeName = "images"
 
-      val session = repositoryManager.getSession
-      try {
-        val nodeName = "images"
-        val rootNode = session.getRootNode
-        if (!rootNode.hasNode(nodeName)) {
-          val node = rootNode.addNode(nodeName, JcrConstants.NT_FOLDER)
-          session.save()
-          node
-        } else {
-          rootNode.getNode(nodeName)
-        }
-      } finally {
-        session.logout
+      if (!rootNode.hasNode(nodeName)) {
+        val node = rootNode.addNode(nodeName, JcrConstants.NT_FOLDER)
+        node
+      } else {
+        rootNode.getNode(nodeName)
       }
     }
 
+    private def createFileNode(imageFolderNode: Node, imageId: String): Node = {
+      //Create the file node - nt:file
+      val fileNode = imageFolderNode.addNode(imageId, JcrConstants.NT_FILE)
+      fileNode
+    }
+
+    private def createContentNode(fileNode: Node, valueFactory: ValueFactory, input: InputStream) = {
+
+      //Create the content node - jcr:content
+      val contentNode = fileNode.addNode(JcrConstants.JCR_CONTENT, JcrConstants.NT_RESOURCE)
+
+      //Set the last modified and mime type properties
+      val lastModified: Calendar = Calendar.getInstance()
+      lastModified.setTimeInMillis(Platform.currentTime)
+      contentNode.setProperty(JcrConstants.JCR_LASTMODIFIED, lastModified)
+      contentNode.setProperty(JcrConstants.JCR_MIMETYPE, "image/jpeg")
+
+      //Set the content data      
+      contentNode.setProperty(JcrConstants.JCR_DATA, valueFactory.createBinary(input))
+    }
   }
 }

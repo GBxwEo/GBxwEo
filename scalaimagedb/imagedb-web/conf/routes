@@ -6,18 +6,18 @@
 GET     /						controllers.Application.index
 
 # Images list (look at the default values for pagination parameters)
-GET     /images					controllers.Images.list(p:Int ?= 0, s:Int ?= 2, f ?= "")
+GET     /images					controllers.ImageController.list(p:Int ?= 0, s:Int ?= 2, f ?= "")
 
 # Add an image
-GET     /images/new             controllers.Images.create
-POST    /images                 controllers.Images.save
+GET     /images/new             controllers.ImageController.create
+POST    /images                 controllers.ImageController.save
 
 # Edit an existing image
-GET     /images/:id          	controllers.Images.edit(id:ObjectId)
-POST    /images/:id          	controllers.Images.update(id:ObjectId)
+GET     /images/:id          	controllers.ImageController.edit(id:ObjectId)
+POST    /images/:id          	controllers.ImageController.update(id:ObjectId)
 
 # Delete an image
-POST    /images/:id/delete   	controllers.Images.delete(id:ObjectId)
+POST    /images/:id/delete   	controllers.ImageController.delete(id:ObjectId)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file			controllers.Assets.at(path="/public", file)

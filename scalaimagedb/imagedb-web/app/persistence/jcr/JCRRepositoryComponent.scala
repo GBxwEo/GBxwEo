@@ -11,18 +11,24 @@ import org.apache.jackrabbit.spi.commons.value.QValueFactoryImpl
 import org.apache.jackrabbit.spi2dav.RepositoryServiceImpl
 import javax.jcr.Repository
 import javax.jcr.Session
+import javax.jcr.SimpleCredentials
 
 trait JCRRepositoryComponent {
 
-  val serverUri: String
+  def serverUri: String
 
-  val repositoryManager = new JCRRepositoryManager(serverUri)
+  def username: String
+
+  def password: String
+
+  val repositoryManager = new JCRRepositoryManager(serverUri, username, password)
 }
 
-class JCRRepositoryManager(serverUri: String) {
+class JCRRepositoryManager(serverUri: String, username: String, password: String) {
 
   def getSession: Session = {
-    repository.login()
+    val creds = new SimpleCredentials(username, password.toCharArray())
+    repository.login(creds, "default")
   }
 
   private val repository = getRepository

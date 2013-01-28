@@ -8,7 +8,7 @@
     
     <h1>Add image</h1>
     
-    @form(action = routes.Images.save, 'enctype -> "multipart/form-data") {
+    @form(action = routes.ImageController.save, 'enctype -> "multipart/form-data") {
               
         <fieldset>                
             @inputText(imageForm("name"), '_label -> "Image name")
@@ -30,7 +30,7 @@
         
         <div class="actions">
             <input type="submit" value="Create this image" class="btn primary"> or 
-            <a href="@routes.Images.list()" class="btn">Cancel</a> 
+            <a href="@routes.ImageController.list()" class="btn">Cancel</a> 
         </div>
                       
         

@@ -8,7 +8,7 @@
     
     <h1>Edit image</h1>
     
-    @form(routes.Images.update(id)) {
+    @form(routes.ImageController.update(id)) {
         
         <fieldset>        
         	<input type="hidden" name="id" value="" />
@@ -17,12 +17,12 @@
         
         <div class="actions">
             <input type="submit" value="Save this image" class="btn primary"> or 
-            <a href="@routes.Images.list()" class="btn">Cancel</a> 
+            <a href="@routes.ImageController.list()" class="btn">Cancel</a> 
         </div>
         
     }
     
-    @form(routes.Images.delete(id), 'class -> "topRight") {
+    @form(routes.ImageController.delete(id), 'class -> "topRight") {
         <input type="submit" value="Delete this image" class="btn danger">
     }
     
