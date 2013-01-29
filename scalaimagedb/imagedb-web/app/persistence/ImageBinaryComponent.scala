@@ -8,6 +8,6 @@ trait ImageBinaryComponent {
   def imageBinaryManager: ImageBinaryManager
 
   trait ImageBinaryManager {
-    def saveImageBinary(input: InputStream, imageId: String)
+    def saveImageBinary(input: InputStream): String
   }
 }

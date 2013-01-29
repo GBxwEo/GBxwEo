@@ -2,8 +2,10 @@ package controllers
 
 import java.io.PipedInputStream
 import java.io.PipedOutputStream
+
 import com.mongodb.casbah.Imports.MongoDBObject
 import com.mongodb.casbah.Imports.ObjectId
+
 import exception.ErrorCode
 import exception.SystemException
 import models.Image
@@ -17,8 +19,6 @@ import play.api.mvc.BodyParser
 import play.api.mvc.Controller
 import play.api.mvc.MultipartFormData
 import views.html
-import java.util.UUID
-import persistence.ImageBinaryComponent
 
 object ImageController extends Controller with ControllerServices {
 
@@ -82,14 +82,13 @@ object ImageController extends Controller with ControllerServices {
     parse.Multipart.handleFilePart {
       case parse.Multipart.FileInfo(partName, filename, contentType) =>
 
-        //Set up the PipedOutputStream here, give the input stream to a worker thread
+        //Set up the PipedOutputStream here, give the input stream to a uploader thread
         val pos = new PipedOutputStream()
         val pis = new PipedInputStream(pos)
-        val imageId = UUID.randomUUID().toString()
-        val worker = new ImageBinaryUploader(imageBinaryComponent, pis, imageId)
+        val uploader = new ImageUploader(imageBinaryComponent, pis)
 
         //Do the upload job
-        worker.start()
+        uploader.start
 
         //Read content to the POS
         Iteratee.fold[Array[Byte], PipedOutputStream](pos) { (os, data) =>
@@ -97,7 +96,12 @@ object ImageController extends Controller with ControllerServices {
           os
         }.mapDone { os =>
           try { os.close() } catch { case ex => SystemException.wrap(ErrorCode.TECHNICAL_ERROR, ex) }
-          imageId
+
+          // Retrieve the image binary id from the uploader
+          val result = uploader !! ImageUploader.ImageBinaryIdMsg
+          result() match {
+            case imageBinaryId: String => imageBinaryId
+          }
         }
     }
   }
@@ -117,10 +121,10 @@ object ImageController extends Controller with ControllerServices {
         request.body.file("ImageBinary").map { picture =>
 
           // TODO Store this id in mongodb 
-          val imageId = picture.ref
+          val imageBinaryId = picture.ref
 
           Image.insert(image)
-          Home.flashing("success" -> "Image %s has been created".format(imageId))
+          Home.flashing("success" -> "Image %s has been created".format(imageBinaryId))
         }.getOrElse {
           Home.flashing("error" -> "Image %s has not been created".format(image.name))
         }

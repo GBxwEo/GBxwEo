@@ -29,7 +29,7 @@ class JCRImageBinarySuite extends mutable.Specification {
         {
           val imageId = UUID.randomUUID().toString()
           val input = new ByteArrayInputStream(imageId.getBytes())
-          imageBinaryManager.saveImageBinary(input, imageId)
+          val imageBinaryId = imageBinaryManager.saveImageBinary(input)
         } must not(throwA[Throwable])
       }
     }

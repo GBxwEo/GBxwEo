@@ -2,12 +2,15 @@ package persistence.jcr
 
 import java.io.InputStream
 import java.util.Calendar
+import java.util.UUID
+
 import scala.compat.Platform
+
 import org.apache.jackrabbit.JcrConstants
+
 import javax.jcr.Node
-import javax.jcr.Session
-import persistence.ImageBinaryComponent
 import javax.jcr.ValueFactory
+import persistence.ImageBinaryComponent
 
 trait JCRImageBinaryComponent extends ImageBinaryComponent {
   this: JCRRepositoryComponent =>
@@ -16,7 +19,7 @@ trait JCRImageBinaryComponent extends ImageBinaryComponent {
 
   class JCRImageBinaryManager extends ImageBinaryManager {
 
-    def saveImageBinary(input: InputStream, imageId: String) {
+    def saveImageBinary(input: InputStream): String = {
 
       val session = repositoryManager.getSession
       try {
@@ -25,13 +28,16 @@ trait JCRImageBinaryComponent extends ImageBinaryComponent {
         val folderNode = getImageFolderNode(rootNode)
 
         //Create a file node
-        val fileNode = createFileNode(folderNode, imageId)
+        val imageBinaryId = UUID.randomUUID().toString()
+        val fileNode = createFileNode(folderNode, imageBinaryId)
 
         //Create a content node
         val valueFactory = session.getValueFactory();
         createContentNode(fileNode, valueFactory, input)
 
         session.save()
+
+        imageBinaryId
 
       } finally {
         session.logout
