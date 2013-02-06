@@ -10,44 +10,42 @@ import org.apache.jackrabbit.JcrConstants
 
 import javax.jcr.Node
 import javax.jcr.ValueFactory
-import persistence.ImageBinaryComponent
+import persistence.BinaryManagerComponent
 
-trait JCRImageBinaryComponent extends ImageBinaryComponent {
+trait JCRBinaryManagerComponent extends BinaryManagerComponent {
   this: JCRRepositoryComponent =>
 
-  def imageBinaryManager: ImageBinaryManager = new JCRImageBinaryManager
+  def binaryManager: BinaryManager = new JCRBinaryManager
 
-  class JCRImageBinaryManager extends ImageBinaryManager {
+  class JCRBinaryManager extends BinaryManager {
 
-    def saveImageBinary(input: InputStream): String = {
+    def saveBinary(input: InputStream): String = {
 
       val session = repositoryManager.getSession
       try {
-        //Get the image folder node
+        //Get the binary folder node
         val rootNode = session.getRootNode
-        val folderNode = getImageFolderNode(rootNode)
+        val folderNode = getFolderNode(rootNode)
 
         //Create a file node
-        val imageBinaryId = UUID.randomUUID().toString()
-        val fileNode = createFileNode(folderNode, imageBinaryId)
+        val binaryId = UUID.randomUUID().toString()
+        val fileNode = createFileNode(folderNode, binaryId)
 
         //Create a content node
         val valueFactory = session.getValueFactory();
         createContentNode(fileNode, valueFactory, input)
 
         session.save()
-
-        imageBinaryId
+        binaryId
 
       } finally {
         session.logout
       }
     }
 
-    private def getImageFolderNode(rootNode: Node): Node = {
-
+    private def getFolderNode(rootNode: Node): Node = {
+      // Get the folder containing binaries
       val nodeName = "images"
-
       if (!rootNode.hasNode(nodeName)) {
         val node = rootNode.addNode(nodeName, JcrConstants.NT_FOLDER)
         node
@@ -56,14 +54,13 @@ trait JCRImageBinaryComponent extends ImageBinaryComponent {
       }
     }
 
-    private def createFileNode(imageFolderNode: Node, imageId: String): Node = {
+    private def createFileNode(folderNode: Node, imageId: String): Node = {
       //Create the file node - nt:file
-      val fileNode = imageFolderNode.addNode(imageId, JcrConstants.NT_FILE)
+      val fileNode = folderNode.addNode(imageId, JcrConstants.NT_FILE)
       fileNode
     }
 
     private def createContentNode(fileNode: Node, valueFactory: ValueFactory, input: InputStream) = {
-
       //Create the content node - jcr:content
       val contentNode = fileNode.addNode(JcrConstants.JCR_CONTENT, JcrConstants.NT_RESOURCE)
 
@@ -77,4 +74,5 @@ trait JCRImageBinaryComponent extends ImageBinaryComponent {
       contentNode.setProperty(JcrConstants.JCR_DATA, valueFactory.createBinary(input))
     }
   }
+
 }

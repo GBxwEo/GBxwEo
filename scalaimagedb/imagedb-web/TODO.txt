@@ -1,0 +1,1 @@
+When save an image for the second time since the application is started, the following expcetion happens : [IllegalStateException: this Mongo has been closed]

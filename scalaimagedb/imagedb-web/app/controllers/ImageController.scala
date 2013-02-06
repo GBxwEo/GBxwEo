@@ -30,7 +30,9 @@ object ImageController extends Controller with ControllerServices {
   /**
    * Handle default path requests, redirect to images list
    */
-  def index = Action { Home }
+  def index = Action {
+    Home
+  }
 
   /**
    * Display the paginated list of images.
@@ -39,21 +41,22 @@ object ImageController extends Controller with ControllerServices {
    * @param orderBy Column to be sorted
    * @param filter Filter applied on image names
    */
-  def list(page: Int, orderBy: Int, filter: String) = Action { implicit request =>
-    Ok(html.images.list(
-      Image.list(page = page, orderBy = orderBy, filter = filter),
-      orderBy, filter))
+  def list(page: Int, orderBy: Int, filter: String) = Action {
+    implicit request =>
+      Ok(html.images.list(
+        Image.list(page = page, orderBy = orderBy, filter = filter),
+        orderBy, filter))
   }
 
   /**
-   * Dispobject Images extends Controller {
-   * lay the 'edit form' of a existing Image.
+   * Display the 'edit form' of a existing Image.
    *
    * @param id Id of the image to edit
    */
   def edit(id: ObjectId) = Action {
-    Image.findOneById(id).map { image =>
-      Ok(html.images.editForm(id, imageForm(id).fill(image)))
+    Image.findOneById(id).map {
+      image =>
+        Ok(html.images.editForm(id, imageForm(id).fill(image)))
     }.getOrElse(NotFound)
   }
 
@@ -62,13 +65,14 @@ object ImageController extends Controller with ControllerServices {
    *
    * @param id Id of the image to edit
    */
-  def update(id: ObjectId) = Action { implicit request =>
-    imageForm(id).bindFromRequest.fold(
-      formWithErrors => BadRequest(html.images.editForm(id, formWithErrors)),
-      image => {
-        Image.save(image.copy(id = id))
-        Home.flashing("success" -> "Image %s has been updated".format(image.name))
-      })
+  def update(id: ObjectId) = Action {
+    implicit request =>
+      imageForm(id).bindFromRequest.fold(
+        formWithErrors => BadRequest(html.images.editForm(id, formWithErrors)),
+        image => {
+          Image.save(image.copy(id = id))
+          Home.flashing("success" -> "Image %s has been updated".format(image.name))
+        })
   }
 
   /**
@@ -91,44 +95,48 @@ object ImageController extends Controller with ControllerServices {
         uploader.start
 
         //Read content to the POS
-        Iteratee.fold[Array[Byte], PipedOutputStream](pos) { (os, data) =>
-          os.write(data)
-          os
-        }.mapDone { os =>
-          try { os.close() } catch { case ex => SystemException.wrap(ErrorCode.TECHNICAL_ERROR, ex) }
+        Iteratee.fold[Array[Byte], PipedOutputStream](pos) {
+          (os, data) =>
+            os.write(data)
+            os
+        }.mapDone {
+          os =>
+            try {
+              os.close()
+            } catch {
+              case ex => SystemException.wrap(ErrorCode.TECHNICAL_ERROR, ex)
+            }
 
-          // Retrieve the image binary id from the uploader
-          val result = uploader !! ImageUploader.ImageBinaryIdMsg
-          result() match {
-            case imageBinaryId: String => imageBinaryId
-          }
+            // Retrieve the image binary id from the uploader
+            val result = uploader !! ImageUploader.ImageBinaryIdMsg
+            result() match {
+              case imageBinaryId: String => imageBinaryId
+            }
         }
     }
   }
 
-  val myBodyParser = BodyParser { request =>
-    parse.multipartFormData(myPartHandler).apply(request)
+  val myBodyParser = BodyParser {
+    request =>
+      parse.multipartFormData(myPartHandler).apply(request)
   }
 
   /**
    * Handle the 'new image form' submission.
    */
-  def save = Action(myBodyParser) { implicit request =>
-
-    imageForm().bindFromRequest.fold(
-      formWithErrors => BadRequest(html.images.createForm(formWithErrors)),
-      image => {
-        request.body.file("ImageBinary").map { picture =>
-
-          // TODO Store this id in mongodb 
-          val imageBinaryId = picture.ref
-
-          Image.insert(image)
-          Home.flashing("success" -> "Image %s has been created".format(imageBinaryId))
-        }.getOrElse {
-          Home.flashing("error" -> "Image %s has not been created".format(image.name))
-        }
-      })
+  def save = Action(myBodyParser) {
+    implicit request =>
+      imageForm().bindFromRequest.fold(
+        formWithErrors => BadRequest(html.images.createForm(formWithErrors)),
+        image => {
+          request.body.file("binary").map {
+            binary =>
+              Image.insert(image.copy(binaryId = Some(binary.ref)))
+              Home.flashing("success" -> "Image %s has been created".format(binary.ref))
+          }.getOrElse {
+            Home.flashing("error" -> "Image %s has not been created".format(image.name))
+          }
+        })
   }
 
   /**
@@ -145,6 +153,7 @@ object ImageController extends Controller with ControllerServices {
   def imageForm(id: ObjectId = new ObjectId) = Form(
     mapping(
       "id" -> ignored(id),
+      "binaryId" -> ignored(Option(null.asInstanceOf[String])),
       "name" -> nonEmptyText)(Image.apply)(Image.unapply))
 
 }

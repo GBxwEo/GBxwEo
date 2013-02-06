@@ -11,6 +11,7 @@ import com.novus.salat.global._
 
 case class Image(
   @Key("_id") id: ObjectId = new ObjectId,
+  binaryId: Option[String],
   name: String)
 
 object Image extends ModelCompanion[Image, ObjectId] {
